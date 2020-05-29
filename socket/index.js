@@ -26,10 +26,40 @@ const cardString = (card) => {
   return `[${card.color}][${card.category}](${card.value})`
 }
 
+const cleanUp = () => {
+  console.log('Clean up script running')
+  Object.entries(players).forEach(([_, player]) => {
+    if (player.disconnected && (player.disconnected+(1000 * 60)) < Date.now()) {
+      console.log(`Cleaning up ${player.name} for being idle`)
+      delete players[player.socket]
+      Object.entries(games).forEach(([_, game]) => {
+        if (game.players.indexOf(player) >= 0) {
+          mutations.KICK(game, player)
+        }
+      })
+    }
+  })
+
+  Object.entries(games).forEach(([_, game]) => {
+    if (!game.players.length) {
+      console.log(`Removing empty game ${game.name}`)
+      delete games[game.identifier]
+    }
+  })
+}
+
+setInterval(cleanUp, 6000)
+
 
 io.on('connection', (socket) => {
   console.log('user connected');
+
   socket.on('disconnect', () => {
+    const player = players[socket.id]
+    if (player) {
+      player.disconnected = Date.now()
+      socket.broadcast.emit('log', { message: `${player.name} disconnected` });
+    }
     console.log('user disconnected');
   });
   socket.on('register', (username, fn) => {
@@ -104,7 +134,7 @@ io.on('connection', (socket) => {
     const player = players[socket.id]
     const target = getPlayerById(playerId)
     io.emit('log', {
-      message: 'Player ' + player.name + ' kicked ' + target.name,
+      message: `Player ${player.name} kicked ${target.name} from ${game.name}`,
       player: player.identifier,
       game: game.identifier
     })
@@ -174,7 +204,7 @@ io.on('connection', (socket) => {
     } else if (event.action === 'ROTATE') {
       mutations.ROTATE(game, event.direction)
       io.emit('log', {
-        message: `Player ${player.name} rotated cards in ${event.direction}`,
+        message: `Player ${player.name} rotated cards in ${event.direction} direction`,
         player: player.identifier,
         game: game.identifier
       })

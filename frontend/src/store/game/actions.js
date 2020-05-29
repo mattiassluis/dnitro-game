@@ -15,6 +15,9 @@ const actions = {
     })
     console.log({ action: 'JOIN' })
   },
+  LEAVE ({ commit }) {
+    commit('SET_GAMEID', null)
+  },
   KICK ({ state }, player) {
     this._vm.$socket.client.emit('kickPlayer', state.remoteId, player.identifier)
   },

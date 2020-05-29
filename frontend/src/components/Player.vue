@@ -1,5 +1,8 @@
 <template>
   <b-card :title="player.name" class="mx-3" style="max-width: 250px">
+    <b-card-text v-if="player.disconnected">
+      <b-badge>disconnected</b-badge>
+    </b-card-text>
     <b-card-text>
       Cards left: {{ player.number_of_cards }}
     </b-card-text>

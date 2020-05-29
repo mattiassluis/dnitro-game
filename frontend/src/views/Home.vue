@@ -85,12 +85,19 @@
               <b-card-group deck class="mb-4 justify-content-md-center">
                 <Card v-for="(card, i) in playerSelf.cards" :key="i" class="my-3" :card="card" @card-clicked="play(card)" />
               </b-card-group>
-              <b-button v-if="finished" variant="primary" @click="restart">Restart</b-button>
+              <div v-if="finished">
+                Looks like you won!
+                Click the <font-awesome-icon icon="flag-checkered"></font-awesome-icon> button to gather your score and restart.
+              </div>
             </b-col>
           </b-row>
         </b-col>
 
         <b-col cols="2">
+          <b-button variant="outline-secondary" @click="gotoLobby" size="sm" class="mb-3">
+            <font-awesome-icon icon="angle-left" class="mr-2"></font-awesome-icon>
+            Return to lobby
+          </b-button>
           <h4>Controls</h4>
           <b-row>
             <b-col cols="12">
@@ -118,7 +125,7 @@
             <b-list-group-item v-for="player in game.players" :key="player.identifier" class="d-flex flex-row align-content-between">
               <div class="flex-grow-1">{{ player.name }}</div>
               <div class="px-2"><b-badge variant="primary" pill>{{ player.score }}</b-badge></div>
-              <b-button size="sm" variant="outline-primary" @click="kick(player)">Kick</b-button>
+              <b-button size="sm" variant="outline-primary" :disabled="player.identifier === playerSelf.identifier" @click="kick(player)">Kick</b-button>
             </b-list-group-item>
           </b-list-group>
         </b-col>
@@ -159,6 +166,7 @@ export default {
       kick: 'game/KICK',
       restack: 'game/RESTACK',
       finish: 'game/FINISH',
+      leaveGame: 'game/LEAVE',
       list: 'game/LIST',
       restart: 'game/RESTART',
       draw: 'game/DRAW',
@@ -184,6 +192,10 @@ export default {
     },
     joinGame: function (gameId) {
       this.join(gameId)
+    },
+    gotoLobby: function () {
+      this.kick(this.playerSelf)
+      this.leaveGame()
     }
   },
   computed: {

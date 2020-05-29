@@ -3,7 +3,6 @@ FROM node:12.13.0-alpine as node
 # build stage
 WORKDIR /app
 COPY package*.json ./
-COPY .env* ./
 RUN npm install
 COPY . .
 RUN npm run build
