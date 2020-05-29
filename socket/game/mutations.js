@@ -2,16 +2,12 @@ const createDeck = require('./deck');
 
 const mutations = {
   JOIN (game, player) {
-    console.log(game.players)
-    console.log(player)
     if (game.players.indexOf(player) >= 0) {
-      // Player already joined
-      console.log('Player found')
       return
     }
     for (let i = 0; i < 7; i++) {
-      player.number_of_cards++
       player.cards = [...player.cards].concat([game.drawpile.pop()])
+      player.number_of_cards = player.cards.length
     }
     game.stack = [game.drawpile.pop()]
     game.drawpile = [...game.drawpile]
@@ -20,6 +16,8 @@ const mutations = {
   KICK (game, player) {
     // Drop the cards to the bottom of the pile
     game.stack = [].concat(player.cards, game.stack)
+    player.cards = []
+    player.number_of_cards = player.cards.length
     game.players = game.players.filter(p => p.identifier !== player.identifier)
   },
   RESTACK (game) {
@@ -31,41 +29,49 @@ const mutations = {
     game.drawpile = createDeck()
     game.stack = []
     game.players.forEach(player => {
-      player.number_of_cards = 0
       player.cards = []
+      player.number_of_cards = player.cards.length
     })
 
     for (let i = 0; i < 7; i++) {
       game.players.forEach(player => {
-        player.number_of_cards++
         player.cards = [...player.cards].concat([game.drawpile.pop()])
+        player.number_of_cards = player.cards.length
       })
     }
     game.stack = [game.drawpile.pop()]
     game.drawpile = [...game.drawpile]
   },
   DRAW (game, player) {
+    if (game.drawpile.length <= 1) {
+      console.log('restacking')
+      let lastCard = game.stack.pop()
+      game.drawpile = [].concat(game.drawpile, game.stack)
+      game.stack = [lastCard]
+      console.log(game.drawpile)
+      console.log(game.stack)
+    }
     if (game.drawpile.length) {
-      player.number_of_cards++
       player.cards = [...player.cards].concat([game.drawpile.pop()])
+      player.number_of_cards = player.cards.length
       game.drawpile = [...game.drawpile]
+    } else {
+      console.log('Drawpile empty')
     }
   },
   DRAW_FROM_STACK (game, player) {
-    if (game.stack.length) {
-      player.number_of_cards++
+    if (game.stack.length > 1) {
       player.cards = [...player.cards].concat([game.stack.pop()])
+      player.number_of_cards = player.cards.length
       game.stack = [...game.stack]
+    } else {
+      console.log('Cannot draw from stack')
     }
   },
-  PLAY (game, player, cardId) {
-    const matches = player.cards.filter(c => c.identifier === cardId)
-    if (matches.length) {
-      const card = matches[0]
-      player.number_of_cards--
-      player.cards = player.cards.filter(c => c !== card)
-      game.stack = [...game.stack].concat([card])
-    }
+  PLAY (game, player, card) {
+    player.cards = player.cards.filter(c => c !== card)
+    game.stack = [...game.stack].concat([card])
+    player.number_of_cards = player.cards.length
   },
   SWAP (from, to) {
     const cards = from.cards
@@ -74,7 +80,7 @@ const mutations = {
   },
   ROTATE (game, direction) {
     const players = [...game.players]
-    if (direction === 'left') {
+    if (direction === 'right') {
       players.reverse()
     }
     let prev = players[players.length-1]
@@ -89,4 +95,5 @@ const mutations = {
     })
   }
 }
+
 module.exports = mutations

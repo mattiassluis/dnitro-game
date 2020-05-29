@@ -51,53 +51,71 @@
       </b-card>
     </b-container>
     <b-container fluid v-else-if="game">
-      <b-row v-if="otherPlayers" class="p-4">
-        <b-col size="12">
-          <b-card-group deck class="justify-content-md-center">
-            <Player v-for="player in otherPlayers" :key="player.identifier" :player="player" :swap="swap"></Player>
-          </b-card-group>
-        </b-col>
-      </b-row>
-      <b-row class="p-4" >
-        <b-col cols="3">
-          <Player v-if="playerLeft" :player="playerLeft" :swap="swap"></Player>
-        </b-col>
-        <b-col cols="3">
-          <Card :card="stackTop" @card-clicked="drawFromStack()" />
-        </b-col>
-        <b-col cols="3">
-          <Card :card="stackTop" :covered="true" @card-clicked="draw()" />
-        </b-col>
-        <b-col cols="3">
-          <Player v-if="playerRight" :player="playerRight" :swap="swap"></Player>
-        </b-col>
-      </b-row>
       <b-row>
-        <b-col size="12">
-          <b-card-group deck class="mb-4 justify-content-md-center">
-            <Card v-for="(card, i) in playerSelf.cards" :key="i" class="my-3" :card="card" @card-clicked="play(card)" />
-          </b-card-group>
-          <b-button v-if="finished" variant="primary" @click="restart">Restart</b-button>
+        <b-col cols="10">
+          <b-row v-if="otherPlayers" class="p-4">
+            <b-col size="12">
+              <b-card-group deck class="justify-content-md-center">
+                <Player v-for="player in otherPlayers" :key="player.identifier" :player="player" :swap="swap"></Player>
+              </b-card-group>
+            </b-col>
+          </b-row>
+          <b-row class="p-4" >
+            <b-col cols="3">
+              <Player class="float-left" v-if="playerLeft" :player="playerLeft" :swap="swap"></Player>
+            </b-col>
+            <b-col cols="3" style="position: relative">
+              <Card v-if="stackBeforeTop" :card="stackBeforeTop" @card-clicked="drawFromStack()" style="position: absolute; left: 50px; top: 0; z-index: 1" />
+              <Card :card="stackTop" @card-clicked="drawFromStack()" style="position: absolute; left: 0; top: 0; z-index: 2" />
+            </b-col>
+            <b-col cols="3">
+              <Card :card="drawPileTop" :covered="true" @card-clicked="draw()" />
+            </b-col>
+            <b-col cols="3">
+              <Player class="float-right" v-if="playerRight" :player="playerRight" :swap="swap"></Player>
+            </b-col>
+          </b-row>
+          <b-row>
+            <b-col size="12">
+              <b-card-group deck class="mb-4 justify-content-md-center">
+                <Card v-for="(card, i) in playerSelf.cards" :key="i" class="my-3" :card="card" @card-clicked="play(card)" />
+              </b-card-group>
+              <b-button v-if="finished" variant="primary" @click="restart">Restart</b-button>
+            </b-col>
+          </b-row>
         </b-col>
-      </b-row>
-      <h4>Controls for the game master</h4>
-      <b-row>
-        <b-col>
-          <b-button class="outline-info" @click="restart">Restart the game</b-button>
-        </b-col>
-        <b-col>
-          <b-button class="outline-info" @click="rotate('left')">&lt; Rotate clockwise</b-button>
-        </b-col>
-        <b-col>
-          <b-button class="outline-info" @click="rotate('right')">Rotate counter clockwise &gt;</b-button>
-        </b-col>
-        <b-col>
-          <b-button class="outline-info" @click="restack">Restack</b-button>
-        </b-col>
-      </b-row>
-      <b-row>
-        <b-col v-for="player in game.players" :key="player.identifier">
-          {{ player.name }} <b-button size="xs" variant="outline-primary" @click="kick(player)">Kick</b-button>
+
+        <b-col cols="2">
+          <h4>Controls</h4>
+          <b-row>
+            <b-col cols="6">
+              <b-button class="outline-info" @click="restart">Restart the game</b-button>
+            </b-col>
+            <b-col cols="6">
+              <b-button class="float-right outline-info" @click="restack">Restack</b-button>
+            </b-col>
+          </b-row>
+          <b-row class="mt-3">
+            <b-col cols="6">
+              <b-button class="outline-info" @click="rotate('left')">&lt; Rotate C</b-button>
+            </b-col>
+            <b-col cols="6">
+              <b-button class="float-right outline-info" @click="rotate('right')">Rotate CC &gt;</b-button>
+            </b-col>
+
+          </b-row>
+          <h5 class="mt-3">Events</h5>
+
+          <pre style="height: 50px; overflow-y: scroll; overflow-x: hidden"><code>{{ logs }}</code></pre>
+
+          <h5 class="mt-3">Players</h5>
+          <b-list-group class="mt-3">
+            <b-list-group-item v-for="player in game.players" :key="player.identifier" class="d-flex flex-row align-content-between">
+              <div class="flex-grow-1">{{ player.name }}</div>
+              <div class="px-2"><b-badge variant="primary" pill>{{ player.score }}</b-badge></div>
+              <b-button size="sm" variant="outline-primary" @click="kick(player)">Kick</b-button>
+            </b-list-group-item>
+          </b-list-group>
         </b-col>
       </b-row>
     </b-container>
@@ -107,7 +125,7 @@
       </b-container>
     </b-container>
 
-    <div class="text-center">version 0.0.1</div>
+    <div class="text-center">version 0.0.2</div>
   </b-container>
 </template>
 
@@ -171,7 +189,8 @@ export default {
       game: 'game/currentGame',
       gameList: 'game/gameList',
       gameid: 'game/gameId',
-      currentPlayer: 'game/currentPlayer'
+      currentPlayer: 'game/currentPlayer',
+      logs: 'game/logs'
     }),
     finished () {
       return this.playerSelf && Object.keys(this.playerSelf.cards).length === 0
@@ -185,13 +204,25 @@ export default {
     stackTop () {
       return this.game.stack[this.game.stack.length - 1]
     },
+    stackBeforeTop () {
+      if (this.game.stack.length > 1) {
+        return this.game.stack[this.game.stack.length - 2]
+      }
+      return null
+    },
+    drawPileTop () {
+      if (this.game.drawpile) {
+        return this.game.drawpile[0]
+      }
+      return null
+    },
     playerSelf () {
       if (!this.game) {
         return undefined
       }
       return this.currentPlayer(this.userid)
     },
-    playerLeft () {
+    playerRight () {
       if (!this.game) {
         return undefined
       }
@@ -205,7 +236,7 @@ export default {
       }
       return player
     },
-    playerRight () {
+    playerLeft () {
       if (!this.game) {
         return undefined
       }
@@ -214,7 +245,7 @@ export default {
         i = 0
       }
       const player = this.game.players[i]
-      if (player === this.playerSelf || player === this.playerLeft) {
+      if (player === this.playerSelf || player === this.playerRight) {
         return undefined
       }
       return player

@@ -6,6 +6,7 @@ const state = {
   gameList: [],
   remoteId: null,
   games: {},
+  gameLogs: {},
   gameName: null,
   currentGame: null,
   socket: null,

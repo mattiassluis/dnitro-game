@@ -9,7 +9,15 @@ const mutations = {
     state.gameList = games
   },
   SOCKET_LOG (state, message) {
-    console.log(message)
+    console.log(message.message)
+    const logs = state.gameLogs
+    if (message.game) {
+      if (logs[message.game] === undefined) {
+        logs[message.game] = []
+      }
+      logs[message.game] = [].concat(logs[message.game], [message.message])
+      state.gameLogs = logs
+    }
   },
   SOCKET_GAME (state, game) {
     state.games[game.identifier] = game

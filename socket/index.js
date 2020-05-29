@@ -23,6 +23,10 @@ const getPlayerById = (identifier) => {
   return null
 }
 
+const cardString = (card) => {
+  return `[${card.color}][${card.category}](${card.value})`
+}
+
 
 io.on('connection', (socket) => {
   console.log('user connected');
@@ -33,7 +37,7 @@ io.on('connection', (socket) => {
     const player = playerCreate(socket.id, username)
     players[socket.id] = player
     fn(player.identifier); // Message to socket only
-    socket.broadcast.emit('log', player.name + ' registered'); // Message to everyone but socket
+    socket.broadcast.emit('log', { message: `${player.name} registered` });
     console.log('player registered as:' + username);
   });
   socket.on('reconnectPlayer', (identifier, fn) => {
@@ -62,14 +66,10 @@ io.on('connection', (socket) => {
   socket.on('createGame', (name) => {
     const game = gameCreate(name)
     const player = players[socket.id]
-    console.log(players)
-    console.log(player)
-    console.log(socket.id)
     games[game.identifier] = game
     socket.emit('gameCreated', { identifier: game.identifier })
     mutations.JOIN(game, player)
     console.log('game created:' + name);
-    console.log(game.players)
     io.emit('game', game)
   });
   socket.on('join', (gameId, fn) => {
@@ -78,7 +78,11 @@ io.on('connection', (socket) => {
 
     if (game) {
       mutations.JOIN(game, player)
-      io.emit('log', 'Player ' + player.name + ' joined game ' + game.name);
+      io.emit('log', {
+        message: 'Player ' + player.name + ' joined game ' + game.name,
+        player: player.identifier,
+        game: game.identifier
+      });
       io.emit('game', game)
       fn(true)
     } else {
@@ -89,49 +93,87 @@ io.on('connection', (socket) => {
     const game = games[gameId]
     const player = players[socket.id]
     const target = getPlayerById(playerId)
-    io.emit('log', 'Player ' + player.name + ' kicked ' + target.name);
+    io.emit('log', {
+      message: 'Player ' + player.name + ' kicked ' + target.name,
+      player: player.identifier,
+      game: game.identifier
+    });
+    io.emit('game', game);
     mutations.KICK(game, target)
   })
   socket.on('action', (event) => {
     const gameId = event.gameId
     const game = games[gameId]
+    const player = players[socket.id]
 
-    if (game === undefined) {
+    if (game === undefined || player === undefined || game.players.indexOf(player) === -1) {
+      console.log('Invalid action')
       return
     }
 
-    const player = players[socket.id]
+    console.log(`Attempting ${event.action} for ${game.name} on request of ${player.name}`)
 
     if (event.action === 'RESTART') {
       mutations.RESTART(game)
-      io.emit('log', 'Player ' + player.name + ' restarted game ' + game.name);
+      io.emit('log', {
+        message: 'Player ' + player.name + ' restarted game ' + game.name,
+        player: player.identifier,
+        game: game.identifier
+      });
     } else if(event.action === 'RESTACK') {
       mutations.RESTACK(game)
-      io.emit('log', 'Player ' + player.name + ' restacked the pile for ' + game.name);
+      io.emit('log', {
+        message: 'Player ' + player.name + ' restacked the pile for ' + game.name,
+        player: player.identifier,
+        game: game.identifier
+      });
     } else if (event.action === 'DRAW') {
       mutations.DRAW(game, player)
-      io.emit('log', 'user drew card');
+      io.emit('log', {
+        message: 'Player ' + player.name + ' drew a card in ' + game.name,
+        player: player.identifier,
+        game: game.identifier
+      });
     } else if (event.action === 'DRAW_FROM_STACK') {
       mutations.DRAW_FROM_STACK(game, player)
-      io.emit('log', 'user pulled card from stack');
+      io.emit('log', {
+        message: 'Player ' + player.name + ' pulled card from stack ' + game.name,
+        player: player.identifier,
+        game: game.identifier
+      });
     } else if (event.action === 'PLAY') {
-      mutations.PLAY(game, player, event.card)
-      io.emit('log', 'user played card')
+      const matches = player.cards.filter(c => c.identifier === event.card)
+      if (matches) {
+        mutations.PLAY(game, player, matches[0])
+        io.emit('log', {
+          message: `Player ${player.name} played card ` + cardString(matches[0]) + ` in ${game.name}`,
+          player: player.identifier,
+          game: game.identifier
+        });
+      }
     } else if (event.action === 'SWAP') {
       const target = getPlayerById(event.target)
       if (player && target) {
         mutations.SWAP(player, target)
-        io.emit('log', player.name + ' swapped cards with ' + target.name)
+        io.emit('log', {
+          message: `Player ${player.name} swapped cards with ${target.name}`,
+          player: player.identifier,
+          game: game.identifier
+        })
       }
     } else if (event.action === 'ROTATE') {
       mutations.ROTATE(game, event.direction)
-      io.emit('log', player.name + ' rotated cards in ' + event.direction)
+      io.emit('log', {
+        message: `Player ${player.name} rotated cards in ${event.direction}`,
+        player: player.identifier,
+        game: game.identifier
+      })
     }
     io.emit('game', game)
   });
 });
 
 http.listen(port, () => {
-  console.log('version: 0.0.2');
+  console.log('version: 0.0.3');
   console.log('listening on port: ' + port);
 });
