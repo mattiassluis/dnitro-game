@@ -17,7 +17,6 @@ const players = {}
 const getPlayerById = (identifier) => {
   const results = Object.entries(players).map(([_, p]) => p).filter(p => p.identifier === identifier)
   if (results) {
-    console.log(results[0])
     return results[0]
   }
   return null
@@ -52,11 +51,9 @@ io.on('connection', (socket) => {
     fn(false)
   })
   socket.on('listGames', (fn) => {
-    const gameList = Object.entries(games).map(([_, g]) => ({
+    fn(Object.entries(games).map(([_, g]) => ({
       name: g.name, identifier: g.identifier, players: g.players.length
-    }))
-    console.log(gameList)
-    fn(gameList)
+    })))
   })
   socket.on('listPlayers', (fn) => {
     fn(Object.entries(players).map(([_, p]) => ({
@@ -89,6 +86,19 @@ io.on('connection', (socket) => {
       fn(false)
     }
   })
+  socket.on('finish', (gameId) => {
+    const game = games[gameId]
+    if (!game) {
+      return
+    }
+    mutations.FINISH(game)
+    mutations.RESTART(game)
+    io.emit('log', {
+      message: `Finished game ${game.name}`,
+      game: game.identifier
+    })
+    io.emit('game', game)
+  })
   socket.on('kickPlayer', (gameId, playerId) => {
     const game = games[gameId]
     const player = players[socket.id]
@@ -97,8 +107,8 @@ io.on('connection', (socket) => {
       message: 'Player ' + player.name + ' kicked ' + target.name,
       player: player.identifier,
       game: game.identifier
-    });
-    io.emit('game', game);
+    })
+    io.emit('game', game)
     mutations.KICK(game, target)
   })
   socket.on('action', (event) => {
@@ -116,28 +126,28 @@ io.on('connection', (socket) => {
     if (event.action === 'RESTART') {
       mutations.RESTART(game)
       io.emit('log', {
-        message: 'Player ' + player.name + ' restarted game ' + game.name,
+        message: `Player ${player.name} restarted game ${game.name}`,
         player: player.identifier,
         game: game.identifier
-      });
+      })
     } else if(event.action === 'RESTACK') {
       mutations.RESTACK(game)
       io.emit('log', {
-        message: 'Player ' + player.name + ' restacked the pile for ' + game.name,
+        message: `Player ${player.name} restacked pile for game ${game.name}`,
         player: player.identifier,
         game: game.identifier
       });
     } else if (event.action === 'DRAW') {
       mutations.DRAW(game, player)
       io.emit('log', {
-        message: 'Player ' + player.name + ' drew a card in ' + game.name,
+        message: `Player ${player.name} drew a card in game ${game.name}`,
         player: player.identifier,
         game: game.identifier
       });
     } else if (event.action === 'DRAW_FROM_STACK') {
       mutations.DRAW_FROM_STACK(game, player)
       io.emit('log', {
-        message: 'Player ' + player.name + ' pulled card from stack ' + game.name,
+        message: `Player ${player.name} pulled card from stack in game ${game.name}`,
         player: player.identifier,
         game: game.identifier
       });

@@ -20,6 +20,18 @@ const mutations = {
     player.number_of_cards = player.cards.length
     game.players = game.players.filter(p => p.identifier !== player.identifier)
   },
+  FINISH (game) {
+    let winner = game.players.filter(p => p.cards.length === 0)
+    let score = 0
+    game.players.forEach(player => {
+      score += player.cards.map(c => c.value).reduce((a, b) => a + b, 0)
+      player.cards = []
+      player.number_of_cards = player.cards.length
+    })
+    if (winner.length) {
+      winner[0].score += score
+    }
+  },
   RESTACK (game) {
     let stack = game.stack.pop()
     game.drawpile = [].concat([game.drawpile], game.stack)

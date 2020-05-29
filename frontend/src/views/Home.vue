@@ -65,7 +65,7 @@
               <Player class="float-left" v-if="playerLeft" :player="playerLeft" :swap="swap"></Player>
             </b-col>
             <b-col cols="3" style="position: relative">
-              <Card v-if="stackBeforeTop" :card="stackBeforeTop" @card-clicked="drawFromStack()" style="position: absolute; left: 50px; top: 0; z-index: 1" />
+              <Card v-if="stackBeforeTop" :card="stackBeforeTop" @card-clicked="drawFromStack()" style="position: absolute; left: 80px; top: 0; z-index: 1" />
               <Card :card="stackTop" @card-clicked="drawFromStack()" style="position: absolute; left: 0; top: 0; z-index: 2" />
             </b-col>
             <b-col cols="3">
@@ -76,7 +76,12 @@
             </b-col>
           </b-row>
           <b-row>
-            <b-col size="12">
+            <b-col cols="12" lg="8" xl="6" offset-lg="2" offset-xl="3">
+              <pre style="height: 80px; overflow-y: scroll; overflow-x: hidden"><code>{{ logMessages }}</code></pre>
+            </b-col>
+          </b-row>
+          <b-row>
+            <b-col cols="12">
               <b-card-group deck class="mb-4 justify-content-md-center">
                 <Card v-for="(card, i) in playerSelf.cards" :key="i" class="my-3" :card="card" @card-clicked="play(card)" />
               </b-card-group>
@@ -88,25 +93,25 @@
         <b-col cols="2">
           <h4>Controls</h4>
           <b-row>
-            <b-col cols="6">
-              <b-button class="outline-info" @click="restart">Restart the game</b-button>
-            </b-col>
-            <b-col cols="6">
-              <b-button class="float-right outline-info" @click="restack">Restack</b-button>
+            <b-col cols="12">
+              <b-btn-toolbar>
+                <b-button variant="info" class="mb-3 mr-1" @click="rotate('left')">
+                  <font-awesome-icon icon="angle-left" class="mr-2"></font-awesome-icon>
+                  <font-awesome-icon icon="redo"></font-awesome-icon>
+                </b-button>
+                <b-button variant="dark" class="mb-3 mr-1" @click="finish">
+                  <font-awesome-icon icon="flag-checkered"></font-awesome-icon>
+                </b-button>
+                <b-button variant="danger" class="mb-3 mr-1" @click="restart">
+                  <font-awesome-icon icon="play"></font-awesome-icon>
+                </b-button>
+                <b-button variant="info" class="mb-3" @click="rotate('right')">
+                  <font-awesome-icon icon="undo"></font-awesome-icon>
+                  <font-awesome-icon icon="angle-right" class="ml-2"></font-awesome-icon>
+                </b-button>
+              </b-btn-toolbar>
             </b-col>
           </b-row>
-          <b-row class="mt-3">
-            <b-col cols="6">
-              <b-button class="outline-info" @click="rotate('left')">&lt; Rotate C</b-button>
-            </b-col>
-            <b-col cols="6">
-              <b-button class="float-right outline-info" @click="rotate('right')">Rotate CC &gt;</b-button>
-            </b-col>
-
-          </b-row>
-          <h5 class="mt-3">Events</h5>
-
-          <pre style="height: 50px; overflow-y: scroll; overflow-x: hidden"><code>{{ logs }}</code></pre>
 
           <h5 class="mt-3">Players</h5>
           <b-list-group class="mt-3">
@@ -153,6 +158,7 @@ export default {
       join: 'game/JOIN',
       kick: 'game/KICK',
       restack: 'game/RESTACK',
+      finish: 'game/FINISH',
       list: 'game/LIST',
       restart: 'game/RESTART',
       draw: 'game/DRAW',
@@ -192,6 +198,14 @@ export default {
       currentPlayer: 'game/currentPlayer',
       logs: 'game/logs'
     }),
+    logMessages () {
+      if (!this.logs[this.gameid]) {
+        return ''
+      }
+      const messages = [...this.logs[this.gameid]]
+      messages.reverse()
+      return messages.join('\n')
+    },
     finished () {
       return this.playerSelf && Object.keys(this.playerSelf.cards).length === 0
     },

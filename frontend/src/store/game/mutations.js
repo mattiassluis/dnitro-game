@@ -16,7 +16,7 @@ const mutations = {
         logs[message.game] = []
       }
       logs[message.game] = [].concat(logs[message.game], [message.message])
-      state.gameLogs = logs
+      state.gameLogs = { ...logs }
     }
   },
   SOCKET_GAME (state, game) {

@@ -18,6 +18,10 @@ const actions = {
   KICK ({ state }, player) {
     this._vm.$socket.client.emit('kickPlayer', state.remoteId, player.identifier)
   },
+  FINISH ({ state }) {
+    this._vm.$socket.client.emit('finish', state.remoteId)
+    console.log({ action: 'FINISH' })
+  },
   RESTART ({ state }) {
     this._vm.$socket.client.emit('action', { action: 'RESTART', gameId: state.remoteId })
     console.log({ action: 'RESTART' })
