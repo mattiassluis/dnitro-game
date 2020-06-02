@@ -87,9 +87,17 @@
               <pre style="height: 170px; overflow-y: scroll; overflow-x: hidden"><code>{{ logMessages }}</code></pre>
             </b-col>
             <b-col cols="6" lg="3" xl="2" style="position: relative">
-              <Card v-if="drawPileReverse.length" :covered="true" @card-clicked="draw()" style="position: absolute; left: 25px; top: 0; z-index: 5"/>
-              <Card v-if="drawPileReverse.length <= 1" @card-clicked="draw()" />
-              <Card v-if="drawPileReverse.length > 1" :covered="true" />
+              <div class="d-flex">
+                <div style="position: relative" class="flex-grow-1">
+                  <Card v-if="drawPileReverse.length" :covered="true" @card-clicked="draw()" style="position: absolute; left: 25px; top: 0; z-index: 5"/>
+                  <Card v-if="drawPileReverse.length <= 1" @card-clicked="draw()" />
+                  <Card v-if="drawPileReverse.length > 1" :covered="true" />
+                </div>
+                <div class="pl-2">
+                  <b-button variant="outline-secondary" @click="drawTwo" size="sm" class="mb-3">Draw +2</b-button>
+                  <b-button variant="outline-secondary" @click="drawFour" size="sm" class="mb-3">Draw +4</b-button>
+                </div>
+              </div>
             </b-col>
             <b-col cols="3" xl="2" class="d-none d-lg-block">
               <Player class="float-right" v-if="playerRight" :player="playerRight" :swap="swap"></Player>
@@ -212,6 +220,14 @@ export default {
     gotoLobby: function () {
       this.kick(this.playerSelf)
       this.leaveGame()
+    },
+    drawTwo: function () {
+      this.draw()
+      this.draw()
+    },
+    drawFour: function () {
+      this.drawTwo()
+      this.drawTwo()
     }
   },
   computed: {
@@ -294,7 +310,14 @@ export default {
       if (!this.game) {
         return []
       }
-      return this.game.players.filter(item => {
+
+      let players = [...this.game.players]
+      const pos = this.game.players.indexOf(this.playerSelf)
+      if (pos > 0) {
+        players = [].concat(this.game.players.slice(pos), this.game.players.slice(0, pos))
+      }
+
+      return players.filter(item => {
         return item !== this.playerLeft && item !== this.playerSelf && item !== this.playerRight
       })
     },

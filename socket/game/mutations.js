@@ -88,7 +88,9 @@ const mutations = {
   SWAP (from, to) {
     const cards = from.cards
     from.cards = to.cards
+    from.number_of_cards = from.cards.length
     to.cards = cards
+    to.number_of_cards = to.cards.length
   },
   ROTATE (game, direction) {
     const players = [...game.players]

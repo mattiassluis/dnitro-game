@@ -28,10 +28,13 @@ const capitalize = (s) => {
 }
 
 const cardString = (card) => {
+  if (card === undefined) {
+    return 'unknown card'
+  }
   if (card.category === 'REGULAR') {
     return `${capitalize(card.color)} ${card.value}`
   } else {
-    return `${capitalize(card.color)} ${capitalize(card.category)}`
+    return `${capitalize(card.color)} ${capitalize(card.category).replace('_', ' ')}`
   }
 }
 
