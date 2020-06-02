@@ -1,52 +1,62 @@
 <template>
   <b-container fluid class="p-5">
     <b-container fluid v-if="userScreen">
-      <div v-if="userid">
-        <b-button type="submit" class="mt-3" variant="primary" @click="createUser">Reconnect</b-button>
-      </div>
-      <div v-else>
-        <b-form-input v-model="usernameInput" placeholder="Enter your name"></b-form-input>
-        <b-button type="submit" class="mt-3" variant="primary" @click="createUser">Set user</b-button>
-      </div>
+      <b-row>
+        <b-col cols="12" lg="6" offset-lg="3" class="text-center">
+          <div v-if="userid">
+            <p>If you dropped from the game you can</p>
+            <b-button type="submit" class="mb-3" variant="primary" @click="reconnectUser">Reconnect</b-button>
+            <p>or</p>
+          </div>
+          <div class="mt-3">
+            <div class="d-flex justify-content-center">
+              <div class="px-2"><b-form-input class="float-right" v-model="usernameInput" placeholder="Enter your name"></b-form-input></div>
+              <div class="px-2"><b-button type="submit" class="float-left" variant="primary" @click="createUser">Connect</b-button></div>
+            </div>
+          </div>
+        </b-col>
+      </b-row>
     </b-container>
     <b-container fluid v-else-if="lobbyScreen">
       <h1>Welcome to the lobby</h1>
 
       <b-row>
-        <b-col cols="6">
-          <b-card title="Available Games">
-            <b-card-text v-if="gameList.length">
-              <ul>
-                <li v-for="game in gameList" :key="game.identifier">
-                  {{ game.name }} ({{ game.players }} players) <b-button size="xs" variant="outline-primary" @click="joinGame(game.identifier)">Join</b-button>
-                </li>
-              </ul>
-            </b-card-text>
-            <b-card-text v-else>
-              There are no games available at this moment but you can create one.
-            </b-card-text>
-          </b-card>
-        </b-col>
-        <b-col cols="6">
-          <b-card title="Players online">
-            <b-card-text v-if="players.length">
-              <ul>
-                <li v-for="player in players" :key="player.identifier">
-                  {{ player.name }}
-                </li>
-              </ul>
-            </b-card-text>
-            <b-card-text v-else>
-              There are no other players online
-            </b-card-text>
-          </b-card>
+        <b-col cols="12">
+          <b-card-group deck class="mb-3">
+            <b-card title="Available Games" class="shadow-sm border-0">
+              <b-card-text v-if="gameList.length">
+                <ul>
+                  <li v-for="game in gameList" :key="game.identifier">
+                    {{ game.name }} ({{ game.players }} players) <b-button size="sm" variant="outline-primary" @click="joinGame(game.identifier)">Join</b-button>
+                  </li>
+                </ul>
+              </b-card-text>
+              <b-card-text v-else>
+                There are no games available at this moment but you can create one.
+              </b-card-text>
+            </b-card>
+            <b-card title="Players online" class="shadow-sm border-0">
+              <b-card-text v-if="players.length">
+                <ul>
+                  <li v-for="player in players" :key="player.identifier">
+                    {{ player.name }}
+                  </li>
+                </ul>
+              </b-card-text>
+              <b-card-text v-else>
+                There are no other players online
+              </b-card-text>
+            </b-card>
+          </b-card-group>
         </b-col>
       </b-row>
 
-      <b-card title="Create a new game" class="mt-3">
+      <b-card title="Create a new game" class="mt-3 shadow-sm border-0">
         <b-card-text>
-          <b-form-input v-model="gameNameInput" placeholder="Name of the game"></b-form-input>
-          <b-button type="submit"  class="mt-3" variant="primary" @click="createGame">Create game</b-button>
+          <div class="d-flex">
+            <div class="px-2"><b-form-input v-model="gameNameInput" placeholder="Name of the game"></b-form-input></div>
+            <div class="px-2"><b-button type="submit" variant="primary" @click="createGame">Create game</b-button></div>
+          </div>
         </b-card-text>
       </b-card>
     </b-container>
@@ -60,24 +70,27 @@
               </b-card-group>
             </b-col>
           </b-row>
-          <b-row class="p-4" >
-            <b-col cols="3">
+          <b-row class="p-4">
+            <b-col cols="2">
               <Player class="float-left" v-if="playerLeft" :player="playerLeft" :swap="swap"></Player>
             </b-col>
-            <b-col cols="3" style="position: relative">
-              <Card v-if="stackBeforeTop" :card="stackBeforeTop" @card-clicked="drawFromStack()" style="position: absolute; left: 80px; top: 0; z-index: 1" />
-              <Card :card="stackTop" @card-clicked="drawFromStack()" style="position: absolute; left: 0; top: 0; z-index: 2" />
+            <b-col cols="2" style="position: relative" class="card-stack right">
+              <Card v-if="reverseStack.length" :card="reverseStack[0]" @card-clicked="drawFromStack()" />
+              <Card v-if="reverseStack.length > 1" :card="reverseStack[1]" @card-clicked="drawFromStack()" />
+              <Card v-if="reverseStack.length > 2" :card="reverseStack[2]" @card-clicked="drawFromStack()" />
+              <Card v-if="reverseStack.length > 3" :card="reverseStack[3]" @card-clicked="drawFromStack()" />
+              <Card v-if="reverseStack.length <= 1" />
             </b-col>
             <b-col cols="3">
-              <Card :card="drawPileTop" :covered="true" @card-clicked="draw()" />
+              <pre style="height: 170px; overflow-y: scroll; overflow-x: hidden"><code>{{ logMessages }}</code></pre>
             </b-col>
-            <b-col cols="3">
+            <b-col cols="2" style="position: relative">
+              <Card v-if="drawPileReverse.length" :covered="true" @card-clicked="draw()" style="position: absolute; left: 25px; top: 0; z-index: 5"/>
+              <Card v-if="drawPileReverse.length <= 1" @card-clicked="draw()" />
+              <Card v-if="drawPileReverse.length > 1" :covered="true" />
+            </b-col>
+            <b-col cols="2">
               <Player class="float-right" v-if="playerRight" :player="playerRight" :swap="swap"></Player>
-            </b-col>
-          </b-row>
-          <b-row>
-            <b-col cols="12" lg="8" xl="6" offset-lg="2" offset-xl="3">
-              <pre style="height: 80px; overflow-y: scroll; overflow-x: hidden"><code>{{ logMessages }}</code></pre>
             </b-col>
           </b-row>
           <b-row>
@@ -102,17 +115,17 @@
           <b-row>
             <b-col cols="12">
               <b-btn-toolbar>
-                <b-button variant="info" class="mb-3 mr-1" @click="rotate('left')">
+                <b-button v-b-tooltip.hover title="Rotate cards clockwise" variant="info" class="mb-3 mr-1" @click="rotate('left')">
                   <font-awesome-icon icon="angle-left" class="mr-2"></font-awesome-icon>
                   <font-awesome-icon icon="redo"></font-awesome-icon>
                 </b-button>
-                <b-button variant="dark" class="mb-3 mr-1" @click="finish">
+                <b-button v-b-tooltip.hover title="Game finished, count score" variant="dark" class="mb-3 mr-1" @click="finish">
                   <font-awesome-icon icon="flag-checkered"></font-awesome-icon>
                 </b-button>
-                <b-button variant="danger" class="mb-3 mr-1" @click="restart">
+                <b-button v-b-tooltip.hover title="Restart the game" variant="danger" class="mb-3 mr-1" @click="restart">
                   <font-awesome-icon icon="play"></font-awesome-icon>
                 </b-button>
-                <b-button variant="info" class="mb-3" @click="rotate('right')">
+                <b-button v-b-tooltip.hover title="Rotate cards counter clockwise" variant="info" class="mb-3" @click="rotate('right')">
                   <font-awesome-icon icon="undo"></font-awesome-icon>
                   <font-awesome-icon icon="angle-right" class="ml-2"></font-awesome-icon>
                 </b-button>
@@ -125,7 +138,7 @@
             <b-list-group-item v-for="player in game.players" :key="player.identifier" class="d-flex flex-row align-content-between">
               <div class="flex-grow-1">{{ player.name }}</div>
               <div class="px-2"><b-badge variant="primary" pill>{{ player.score }}</b-badge></div>
-              <b-button size="sm" variant="outline-primary" :disabled="player.identifier === playerSelf.identifier" @click="kick(player)">Kick</b-button>
+              <b-button v-b-tooltip.hover title="Remove this user from the game" size="sm" variant="outline-primary" :disabled="player.identifier === playerSelf.identifier" @click="kick(player)">Kick</b-button>
             </b-list-group-item>
           </b-list-group>
         </b-col>
@@ -137,7 +150,9 @@
       </b-container>
     </b-container>
 
-    <div class="text-center">version 0.0.2</div>
+    <div class="text-center mt-3">
+      <small>version 0.0.4 | D-Nitro | Card design inspired by <a href="https://opengameart.org/content/uno-playing-cards-2d" target="_blank">mehrasaur</a> and <a href="https://www.instagram.com/warlesonoliveira/?utm_source=ig_embed" target="_blank">Warleson Oliveira</a></small>
+    </div>
   </b-container>
 </template>
 
@@ -176,16 +191,15 @@ export default {
       play: 'game/PLAY'
     }),
     createUser () {
-      if (this.userid) {
-        console.log('Attempt reconnect')
-        this.reconnect()
-        this.list()
-      } else {
-        console.log('Registering')
-        this.setUsername(this.usernameInput)
-        this.registerUser()
-        this.list()
-      }
+      console.log('Registering')
+      this.setUsername(this.usernameInput)
+      this.registerUser()
+      this.list()
+    },
+    reconnectUser () {
+      console.log('Attempt reconnect')
+      this.reconnect()
+      this.list()
     },
     createGame: function () {
       this.create(this.gameNameInput)
@@ -227,18 +241,16 @@ export default {
     lobbyScreen () {
       return !this.gameid
     },
-    stackTop () {
-      return this.game.stack[this.game.stack.length - 1]
+    reverseStack () {
+      const stack = [...this.game.stack]
+      stack.reverse()
+      return stack
     },
-    stackBeforeTop () {
-      if (this.game.stack.length > 1) {
-        return this.game.stack[this.game.stack.length - 2]
-      }
-      return null
-    },
-    drawPileTop () {
+    drawPileReverse () {
       if (this.game.drawpile) {
-        return this.game.drawpile[0]
+        const drawPile = [...this.game.drawpile]
+        drawPile.reverse()
+        return drawPile
       }
       return null
     },
