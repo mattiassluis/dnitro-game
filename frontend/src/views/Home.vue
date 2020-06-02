@@ -62,34 +62,36 @@
     </b-container>
     <b-container fluid v-else-if="game">
       <b-row>
-        <b-col cols="10">
+        <b-col cols="12" xl="10">
           <b-row v-if="otherPlayers" class="p-4">
             <b-col size="12">
               <b-card-group deck class="justify-content-md-center">
+                <Player class="d-lg-none" v-if="playerLeft" :player="playerLeft" :swap="swap"></Player>
                 <Player v-for="player in otherPlayers" :key="player.identifier" :player="player" :swap="swap"></Player>
+                <Player class="d-lg-none" v-if="playerRight" :player="playerRight" :swap="swap"></Player>
               </b-card-group>
             </b-col>
           </b-row>
           <b-row class="p-4">
-            <b-col cols="2">
+            <b-col cols="3" xl="2" class="d-none d-lg-block">
               <Player class="float-left" v-if="playerLeft" :player="playerLeft" :swap="swap"></Player>
             </b-col>
-            <b-col cols="2" style="position: relative" class="card-stack right">
+            <b-col cols="6" lg="3" xl="2" style="position: relative" class="card-stack right">
               <Card v-if="reverseStack.length" :card="reverseStack[0]" @card-clicked="drawFromStack()" />
               <Card v-if="reverseStack.length > 1" :card="reverseStack[1]" @card-clicked="drawFromStack()" />
               <Card v-if="reverseStack.length > 2" :card="reverseStack[2]" @card-clicked="drawFromStack()" />
               <Card v-if="reverseStack.length > 3" :card="reverseStack[3]" @card-clicked="drawFromStack()" />
               <Card v-if="reverseStack.length <= 1" />
             </b-col>
-            <b-col cols="3">
+            <b-col cols="0" xl="3" class="d-none d-xl-flex">
               <pre style="height: 170px; overflow-y: scroll; overflow-x: hidden"><code>{{ logMessages }}</code></pre>
             </b-col>
-            <b-col cols="2" style="position: relative">
+            <b-col cols="6" lg="3" xl="2" style="position: relative">
               <Card v-if="drawPileReverse.length" :covered="true" @card-clicked="draw()" style="position: absolute; left: 25px; top: 0; z-index: 5"/>
               <Card v-if="drawPileReverse.length <= 1" @card-clicked="draw()" />
               <Card v-if="drawPileReverse.length > 1" :covered="true" />
             </b-col>
-            <b-col cols="2">
+            <b-col cols="3" xl="2" class="d-none d-lg-block">
               <Player class="float-right" v-if="playerRight" :player="playerRight" :swap="swap"></Player>
             </b-col>
           </b-row>
@@ -106,7 +108,7 @@
           </b-row>
         </b-col>
 
-        <b-col cols="2">
+        <b-col cols="12" xl="2">
           <b-button variant="outline-secondary" @click="gotoLobby" size="sm" class="mb-3">
             <font-awesome-icon icon="angle-left" class="mr-2"></font-awesome-icon>
             Return to lobby
@@ -151,7 +153,7 @@
     </b-container>
 
     <div class="text-center mt-3">
-      <small>version 0.0.4 | D-Nitro | Card design inspired by <a href="https://opengameart.org/content/uno-playing-cards-2d" target="_blank">mehrasaur</a> and <a href="https://www.instagram.com/warlesonoliveira/?utm_source=ig_embed" target="_blank">Warleson Oliveira</a></small>
+      <small>version 0.0.5 | D-Nitro | Card design inspired by <a href="https://opengameart.org/content/uno-playing-cards-2d" target="_blank">mehrasaur</a> and <a href="https://www.instagram.com/warlesonoliveira/?utm_source=ig_embed" target="_blank">Warleson Oliveira</a></small>
     </div>
   </b-container>
 </template>

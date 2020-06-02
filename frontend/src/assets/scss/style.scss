@@ -35,20 +35,6 @@ body {
       left: 30px;
       transform: rotate(5deg);
     }
-
-    &:nth-child(5) {
-      z-index: 6;
-      top: 5px;
-      left: 30px;
-      transform: rotate(8deg);
-    }
-
-    &:nth-child(6) {
-      z-index: 5;
-      top: 5px;
-      left: 30px;
-      transform: rotate(8deg);
-    }
   }
 
   &.right {
