@@ -84,7 +84,7 @@
               <Card v-if="reverseStack.length <= 1" />
             </b-col>
             <b-col cols="0" xl="3" class="d-none d-xl-flex">
-              <pre style="height: 170px; overflow-y: scroll; overflow-x: hidden"><code>{{ logMessages }}</code></pre>
+              <pre style="height: 170px; width: 100%; overflow-y: scroll; overflow-x: hidden"><code>{{ logMessages }}</code></pre>
             </b-col>
             <b-col cols="6" lg="3" xl="2" style="position: relative">
               <div class="d-flex">
@@ -94,8 +94,8 @@
                   <Card v-if="drawPileReverse.length > 1" :covered="true" />
                 </div>
                 <div class="pl-2">
-                  <b-button variant="outline-secondary" @click="drawTwo" size="sm" class="mb-3">Draw +2</b-button>
-                  <b-button variant="outline-secondary" @click="drawFour" size="sm" class="mb-3">Draw +4</b-button>
+                  <b-button variant="outline-secondary" @click="drawTwo" block size="sm" class="mb-3">Draw +2</b-button>
+                  <b-button variant="outline-secondary" @click="drawFour" block size="sm" class="mb-3">Draw +4</b-button>
                 </div>
               </div>
             </b-col>
@@ -108,7 +108,7 @@
               <b-card-group deck class="mb-4 justify-content-md-center">
                 <Card v-for="(card, i) in playerSelf.cards" :key="i" class="my-3" :card="card" @card-clicked="play(card)" />
               </b-card-group>
-              <div v-if="finished">
+              <div v-if="finished" class="text-center">
                 Looks like you won!
                 Click the <font-awesome-icon icon="flag-checkered"></font-awesome-icon> button to gather your score and restart.
               </div>
