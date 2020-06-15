@@ -8,6 +8,7 @@ const playerCreate = (socket, name) => {
     cards: [],
     number_of_cards: 0,
     score: 0,
+    game: null,
     disconnected: false
   }
 }

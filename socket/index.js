@@ -114,6 +114,7 @@ io.on('connection', (socket) => {
     games[game.identifier] = game
     socket.emit('gameCreated', { identifier: game.identifier })
     mutations.JOIN(game, player)
+    mutations.RESTART(game)
     console.log('game created:' + name)
     io.emit('game', game)
   })
@@ -155,13 +156,16 @@ io.on('connection', (socket) => {
     const game = games[gameId]
     const player = players[socket.id]
     const target = getPlayerById(playerId)
-    io.emit('log', {
-      message: `${player.name} kicked ${target.name} from '${game.name}'`,
-      player: player.identifier,
-      game: game.identifier
-    })
-    io.emit('game', game)
-    mutations.KICK(game, target)
+
+    if (game && player && target) {
+      io.emit('log', {
+        message: `${player.name} kicked ${target.name} from '${game.name}'`,
+        player: player.identifier,
+        game: game.identifier
+      })
+      io.emit('game', game)
+      mutations.KICK(game, target)
+    }
   })
 
   socket.on('action', (event) => {
@@ -238,6 +242,6 @@ io.on('connection', (socket) => {
 })
 
 http.listen(port, () => {
-  console.log('version: 0.0.4')
+  console.log('version: 0.0.5')
   console.log('listening on port: ' + port)
 });

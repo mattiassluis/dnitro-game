@@ -5,17 +5,21 @@ const mutations = {
     if (game.players.indexOf(player) >= 0) {
       return
     }
+    if (player.cards && player.game === game.identifier) {
+      game.drawpile = [].concat(player.cards, game.drawpile)
+    }
+    player.game = game.identifier
+    player.cards = []
     for (let i = 0; i < 7; i++) {
       player.cards = [...player.cards].concat([game.drawpile.pop()])
       player.number_of_cards = player.cards.length
     }
-    game.stack = [game.drawpile.pop()]
     game.drawpile = [...game.drawpile]
-    game.players = [...game.players].concat([player])
+    game.players = [...game.players, player]
   },
   KICK (game, player) {
     // Drop the cards to the bottom of the pile
-    game.stack = [].concat(player.cards, game.stack)
+    game.drawpile = [].concat(player.cards, game.drawpile)
     player.cards = []
     player.number_of_cards = player.cards.length
     game.players = game.players.filter(p => p.identifier !== player.identifier)
@@ -52,6 +56,9 @@ const mutations = {
       })
     }
     game.stack = [game.drawpile.pop()]
+    while(game.stack[game.stack.length-1].value > 9) {
+      game.stack = [].concat(game.stack, [game.drawpile.pop()])
+    }
     game.drawpile = [...game.drawpile]
   },
   DRAW (game, player) {
