@@ -16,33 +16,7 @@
     </b-navbar>
 
     <b-modal id="help" size="xl" title="Help" hide-footer>
-      <h3>Controls</h3>
-      <p>
-        <strong>Everyone is admin.</strong>
-        There are no enforced rules.
-        You can swap cards with anyone without their consent, you can restart or finish the game at any time.
-        You can pick cards from both the draw pile as the play stack (but you can only play cards on the stack).
-        The game does not track who's turn it is.
-        New players can join and will receive 7 cards.
-      </p>
-      <h3>D-Nitro House Rules</h3>
-      <ul>
-        <li>If you say the word One, or UNO (in any language), draw 2 cards</li>
-        <li>+4 can be stacked with +2 (and vice-versa) if color matches</li>
-        <li>If you lose an UNO Challenge (called out for not saying UNO when having only 1 card) - draw 5 cards</li>
-        <li>Rotation of cards - When the same card color and face value (only colored cards) is played by two consecutive players, all hands are swapped in the direction of the game</li>
-        <li>Rotation of cards - When +2 cards result in rotation of cards the cards must be picked up before the hands are swapped</li>
-        <li>Black blank card action - play again (any card)</li>
-        <li>Black Swap hands - in your turn you can swap hands with another player of your choice</li>
-        <li>Black Swap hands - choose color before swapping hands or the other player can choose the color</li>
-        <li>Playing a reverse of the matching color in a +2 or +4 will reverse the action of drawing the cards</li>
-        <li>Player can play 2 identical cards at the same time (same face value and color)</li>
-      </ul>
-      <h4>Applicable official rules</h4>
-      <ul>
-        <li>Official UNO rule: You can only play a +4 if you don't have any other cards of the color on the table, if the player receiving the +4 challenges you, you have to draw 4 cards, if the challenge wrong, the player challenging draws 2 additional cards (total of 6)</li>
-        <li>Official UNO rule: Failed UNO challenge (draw 2)</li>
-      </ul>
+      <help></help>
     </b-modal>
 
     <b-container fluid class="p-5">
@@ -82,9 +56,9 @@
                 </b-card-text>
               </b-card>
               <b-card title="Players online" class="shadow-sm border-0">
-                <b-card-text v-if="players.length">
+                <b-card-text v-if="lobbyPlayers.length">
                   <ul>
-                    <li v-for="player in players" :key="player.identifier">
+                    <li v-for="player in lobbyPlayers" :key="player.identifier">
                       {{ player.name }}
                     </li>
                   </ul>
@@ -130,7 +104,19 @@
                 <Card v-if="reverseStack.length <= 1" />
               </b-col>
               <b-col cols="0" xl="3" class="d-none d-xl-flex">
-                <pre style="height: 170px; width: 100%; overflow-y: scroll; overflow-x: hidden"><code>{{ logMessages }}</code></pre>
+                <div class="d-block">
+                  <div>
+                    <pre style="height: 150px; width: 100%; overflow-y: scroll; overflow-x: hidden"><code>{{ logMessages }}</code></pre>
+                  </div>
+                  <div class="mt-1">
+                    <b-button variant="outline-secondary" @click="drawFour" class="float-right" size="sm">
+                      <span class="d-none d-xl-inline">Draw </span>+4
+                    </b-button>
+                    <b-button variant="outline-secondary" @click="drawTwo" class="float-right mr-1" size="sm">
+                      <span class="d-none d-xl-inline">Draw </span>+2
+                    </b-button>
+                  </div>
+                </div>
               </b-col>
               <b-col cols="6" lg="3" xl="2" style="position: relative">
                 <div class="d-flex">
@@ -138,10 +124,6 @@
                     <Card v-if="drawPileReverse.length" :covered="true" @card-clicked="draw()" style="position: absolute; left: 25px; top: 0; z-index: 5"/>
                     <Card v-if="drawPileReverse.length <= 1" @card-clicked="draw()" />
                     <Card v-if="drawPileReverse.length > 1" :covered="true" />
-                  </div>
-                  <div class="pl-2">
-                    <b-button variant="outline-secondary" @click="drawTwo" block size="sm" class="mb-3">Draw +2</b-button>
-                    <b-button variant="outline-secondary" @click="drawFour" block size="sm" class="mb-3">Draw +4</b-button>
                   </div>
                 </div>
               </b-col>
@@ -155,8 +137,12 @@
                   <Card v-for="(card, i) in playerSelfCards" :key="i" class="my-3" :card="card" @card-clicked="play(card)" />
                 </b-card-group>
                 <div v-if="finished" class="text-center">
-                  Looks like you won!
-                  Click the <font-awesome-icon icon="flag-checkered"></font-awesome-icon> button to gather your score and restart.
+                  <b-button v-b-tooltip.hover title="Game finished, count score" variant="dark" class="mb-2" @click="finish">
+                    <font-awesome-icon icon="flag-checkered" class="mr-1"></font-awesome-icon> Restart
+                  </b-button>
+                  <p>
+                    Looks like you won! Restart the game to gather your score and start a new game.
+                  </p>
                 </div>
               </b-col>
             </b-row>
@@ -209,18 +195,20 @@
     </b-container>
 
     <div class="text-center">
-      <small>version 0.0.6 | D-Nitro | Card design inspired by <a href="https://opengameart.org/content/uno-playing-cards-2d" target="_blank">mehrasaur</a> and <a href="https://www.instagram.com/warlesonoliveira/?utm_source=ig_embed" target="_blank">Warleson Oliveira</a></small>
+      <small>version 0.0.7 | D-Nitro | Card design inspired by <a href="https://opengameart.org/content/uno-playing-cards-2d" target="_blank">mehrasaur</a> and <a href="https://www.instagram.com/warlesonoliveira/?utm_source=ig_embed" target="_blank">Warleson Oliveira</a></small>
     </div>
   </b-container>
 </template>
 
 <script>
 import Card from '@/components/Card'
+import Help from '@/components/Help'
 import Player from '@/components/Player'
 import { mapActions, mapGetters } from 'vuex'
 export default {
   components: {
     Card,
+    Help,
     Player
   },
   data () {
@@ -318,6 +306,9 @@ export default {
       const stack = [...this.game.stack]
       stack.reverse()
       return stack
+    },
+    lobbyPlayers () {
+      return this.players.filter(player => !player.disconnected)
     },
     playerSelfCards () {
       if (!this.playerSelf) {

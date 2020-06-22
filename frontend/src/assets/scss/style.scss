@@ -74,6 +74,16 @@ body {
 
   width: 120px;
   height: 166px;
+  transition: all 100ms ease-in-out;
+
+  &:hover {
+    transform: scale(1.03, 1.03);
+  }
+
+  &:active {
+    transform: scale(0.95, 0.95);
+    transition: transform 50ms;
+  }
 
   &.small {
     width: 60px;
