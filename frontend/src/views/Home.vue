@@ -97,44 +97,50 @@
                 <Player class="float-left" v-if="playerLeft" :player="playerLeft" :swap="swap"></Player>
               </b-col>
               <b-col cols="6" lg="3" xl="2" style="position: relative" class="card-stack right">
-                <Card v-if="reverseStack.length" :card="reverseStack[0]" @card-clicked="drawFromStack()" />
-                <Card v-if="reverseStack.length > 1" :card="reverseStack[1]" @card-clicked="drawFromStack()" />
-                <Card v-if="reverseStack.length > 2" :card="reverseStack[2]" @card-clicked="drawFromStack()" />
-                <Card v-if="reverseStack.length > 3" :card="reverseStack[3]" @card-clicked="drawFromStack()" />
-                <Card v-if="reverseStack.length <= 1" />
+                <Card :small="compactMode" v-if="reverseStack.length" :card="reverseStack[0]" @card-clicked="drawFromStack()" />
+                <Card :small="compactMode" v-if="reverseStack.length > 1" :card="reverseStack[1]" @card-clicked="drawFromStack()" />
+                <Card :small="compactMode" v-if="reverseStack.length > 2" :card="reverseStack[2]" @card-clicked="drawFromStack()" />
+                <Card :small="compactMode" v-if="reverseStack.length > 3" :card="reverseStack[3]" @card-clicked="drawFromStack()" />
+                <Card :small="compactMode" v-if="reverseStack.length <= 1" />
               </b-col>
               <b-col cols="0" xl="3" class="d-none d-xl-flex">
-                <div class="d-block">
-                  <div>
-                    <pre style="height: 150px; width: 100%; overflow-y: scroll; overflow-x: hidden"><code>{{ logMessages }}</code></pre>
-                  </div>
-                  <div class="mt-1">
-                    <b-button variant="outline-secondary" @click="drawFour" class="float-right" size="sm">
-                      <span class="d-none d-xl-inline">Draw </span>+4
-                    </b-button>
-                    <b-button variant="outline-secondary" @click="drawTwo" class="float-right mr-1" size="sm">
-                      <span class="d-none d-xl-inline">Draw </span>+2
-                    </b-button>
-                  </div>
-                </div>
+                <pre style="height: 150px; width: 100%; overflow-y: scroll; overflow-x: hidden"><code>{{ logMessages }}</code></pre>
               </b-col>
               <b-col cols="6" lg="3" xl="2" style="position: relative">
-                <div class="d-flex">
-                  <div style="position: relative" class="flex-grow-1">
-                    <Card v-if="drawPileReverse.length" :covered="true" @card-clicked="draw()" style="position: absolute; left: 25px; top: 0; z-index: 5"/>
-                    <Card v-if="drawPileReverse.length <= 1" @card-clicked="draw()" />
-                    <Card v-if="drawPileReverse.length > 1" :covered="true" />
-                  </div>
-                </div>
+                <Card :small="compactMode" v-if="drawPileReverse.length" :covered="true" @card-clicked="draw()" style="position: absolute; left: 25px; top: 0; z-index: 5"/>
+                <Card :small="compactMode" v-if="drawPileReverse.length <= 1" @card-clicked="draw()" />
+                <Card :small="compactMode" v-if="drawPileReverse.length > 1" :covered="true" />
               </b-col>
               <b-col cols="3" xl="2" class="d-none d-lg-block">
                 <Player class="float-right" v-if="playerRight" :player="playerRight" :swap="swap"></Player>
               </b-col>
             </b-row>
+            <b-row class="mt-1">
+              <b-col cols="12" class="text-center">
+                <b-button variant="outline-secondary" @click="drawFour" size="sm">
+                  <span class="d-none d-xl-inline">Draw </span>+4
+                </b-button>
+                <b-button variant="outline-secondary" @click="drawTwo" class="ml-1" size="sm">
+                  <span class="d-none d-xl-inline">Draw </span>+2
+                </b-button>
+                <b-button variant="danger" @click="messageColor('red')" class="ml-1" size="sm">Red</b-button>
+                <b-button variant="warning" @click="messageColor('yellow')" class="ml-1" size="sm">Yellow</b-button>
+                <b-button variant="success" @click="messageColor('green')" class="ml-1" size="sm">Green</b-button>
+                <b-button variant="primary" @click="messageColor('blue')" class="ml-1" size="sm">Blue</b-button>
+                <b-button variant="outline-secondary" @click="message('calls UNO')" class="ml-1" size="sm">Call UNO!</b-button>
+              </b-col>
+            </b-row>
+            <b-row class="mt-2">
+              <b-col cols="12" md="6" lg="4" offset-lg="4" offset-md="3" class="text-center">
+                <b-container>
+                  <b-form-input v-model="chatInput" @keyup.enter="chat" type="text" size="sm" placeholder="Send a message to the others"></b-form-input>
+                </b-container>
+              </b-col>
+            </b-row>
             <b-row>
               <b-col cols="12">
                 <b-card-group deck class="mb-4 justify-content-md-center">
-                  <Card v-for="(card, i) in playerSelfCards" :key="i" class="my-3" :card="card" @card-clicked="play(card)" />
+                  <Card :small="compactMode" v-for="(card, i) in playerSelfCards" :key="i" class="my-3" :card="card" @card-clicked="play(card)" />
                 </b-card-group>
                 <div v-if="finished" class="text-center">
                   <b-button v-b-tooltip.hover title="Game finished, count score" variant="dark" class="mb-2" @click="finish">
@@ -175,6 +181,11 @@
                 <b-form-checkbox v-model="sortCards">Sort my cards</b-form-checkbox>
               </b-col>
             </b-row>
+            <b-row>
+              <b-col cols="12">
+                <b-form-checkbox v-model="compactMode" @change="toggleCompact">Compact mode</b-form-checkbox>
+              </b-col>
+            </b-row>
 
             <h5 class="mt-3">Players</h5>
             <b-list-group class="mt-3">
@@ -195,7 +206,7 @@
     </b-container>
 
     <div class="text-center">
-      <small>version 0.0.7 | D-Nitro | Card design inspired by <a href="https://opengameart.org/content/uno-playing-cards-2d" target="_blank">mehrasaur</a> and <a href="https://www.instagram.com/warlesonoliveira/?utm_source=ig_embed" target="_blank">Warleson Oliveira</a></small>
+      <small>version 0.0.8 | D-Nitro | Card design inspired by <a href="https://opengameart.org/content/uno-playing-cards-2d" target="_blank">mehrasaur</a> and <a href="https://www.instagram.com/warlesonoliveira/?utm_source=ig_embed" target="_blank">Warleson Oliveira</a></small>
     </div>
   </b-container>
 </template>
@@ -216,7 +227,8 @@ export default {
       usernameInput: '',
       gameNameInput: 'Jennies Hour',
       lobbyInterval: null,
-      sortCards: false
+      sortCards: false,
+      chatInput: ''
     }
   },
   methods: {
@@ -228,6 +240,7 @@ export default {
       join: 'game/JOIN',
       kick: 'game/KICK',
       restack: 'game/RESTACK',
+      message: 'game/MESSAGE',
       finish: 'game/FINISH',
       leaveGame: 'game/LEAVE',
       listGames: 'game/LIST',
@@ -237,13 +250,24 @@ export default {
       drawFromStack: 'game/DRAW_FROM_STACK',
       swap: 'game/SWAP',
       rotate: 'game/ROTATE',
-      play: 'game/PLAY'
+      play: 'game/PLAY',
+      toggleCompact: 'game/TOGGLE_COMPACT'
     }),
     createUser () {
       console.log('Registering')
       this.setUsername(this.usernameInput)
       this.registerUser()
       this.listGames()
+    },
+    messageColor (color) {
+      this.message('Change color to ' + color)
+    },
+    chat () {
+      if (this.chatInput) {
+        const message = this.chatInput
+        this.chatInput = ''
+        this.message(message)
+      }
     },
     reconnectUser () {
       console.log('Attempt reconnect')
@@ -283,7 +307,8 @@ export default {
       gameList: 'game/gameList',
       gameid: 'game/gameId',
       currentPlayer: 'game/currentPlayer',
-      logs: 'game/logs'
+      logs: 'game/logs',
+      compactMode: 'game/compact'
     }),
     logMessages () {
       if (!this.logs[this.gameid]) {

@@ -163,8 +163,20 @@ io.on('connection', (socket) => {
         player: player.identifier,
         game: game.identifier
       })
-      io.emit('game', game)
       mutations.KICK(game, target)
+      io.emit('game', game)
+    }
+  })
+
+  socket.on('chat', (gameId, message) => {
+    const player = players[socket.id]
+
+    if (message) {
+      io.emit('log', {
+        message: `${player.name}: ${message}`,
+        player: player.identifier,
+        game: gameId
+      })
     }
   })
 
@@ -242,6 +254,6 @@ io.on('connection', (socket) => {
 })
 
 http.listen(port, () => {
-  console.log('version: 0.0.5')
+  console.log('version: 0.0.6')
   console.log('listening on port: ' + port)
 });

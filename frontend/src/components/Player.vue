@@ -6,7 +6,7 @@
     <b-card-text v-if="player.disconnected">
       <b-badge>disconnected</b-badge>
     </b-card-text>
-    <b-card-text style="position: relative" class="d-none d-xl-block">
+    <b-card-text style="position: relative" class="d-none d-xl-block" v-if="!compactMode">
       <Card v-if="player.number_of_cards" covered small />
       <Card v-if="player.number_of_cards > 1" covered small style="position: absolute; left: 7px; top: 0; z-index: 1" />
       <Card v-if="player.number_of_cards > 2" covered small style="position: absolute; left: 14px; top: 0; z-index: 2" />
@@ -26,6 +26,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import Card from '@/components/Card'
 export default {
   props: {
@@ -37,6 +38,11 @@ export default {
       type: Function,
       required: false
     }
+  },
+  computed: {
+    ...mapGetters({
+      compactMode: 'game/compact'
+    })
   },
   components: {
     Card

@@ -50,6 +50,12 @@ const actions = {
   PLAY ({ state, rootState }, card) {
     console.log({ action: 'PLAY', player: rootState.user.userid, card: card })
     this._vm.$socket.client.emit('action', { action: 'PLAY', gameId: state.remoteId, card: card.identifier })
+  },
+  MESSAGE ({ state }, message) {
+    this._vm.$socket.client.emit('chat', state.remoteId, message)
+  },
+  TOGGLE_COMPACT ({ commit }) {
+    commit('TOGGLE_COMPACT')
   }
 }
 export default actions

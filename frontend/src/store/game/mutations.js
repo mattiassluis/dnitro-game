@@ -25,6 +25,9 @@ const mutations = {
   },
   SET_GAMEID (state, gameid) {
     state.remoteId = gameid
+  },
+  TOGGLE_COMPACT (state) {
+    state.compact = !state.compact
   }
 }
 export default mutations
