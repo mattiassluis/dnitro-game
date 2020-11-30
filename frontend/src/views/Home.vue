@@ -115,6 +115,13 @@
                 <Player class="float-right" v-if="playerRight" :player="playerRight" :swap="swap"></Player>
               </b-col>
             </b-row>
+            <b-row class="mt-1 d-xl-none">
+              <b-col cols="12">
+                <b-container>
+                  <pre style="height: 50px; width: 100%; overflow-y: scroll; overflow-x: hidden"><code>{{ logMessages }}</code></pre>
+                </b-container>
+              </b-col>
+            </b-row>
             <b-row class="mt-1">
               <b-col cols="12" class="text-center">
                 <b-button variant="outline-secondary" @click="drawFour" size="sm">
@@ -206,7 +213,7 @@
     </b-container>
 
     <div class="text-center">
-      <small>version 0.0.8 | D-Nitro | Card design inspired by <a href="https://opengameart.org/content/uno-playing-cards-2d" target="_blank">mehrasaur</a> and <a href="https://www.instagram.com/warlesonoliveira/?utm_source=ig_embed" target="_blank">Warleson Oliveira</a></small>
+      <small>version 0.0.9 | D-Nitro | Card design inspired by <a href="https://opengameart.org/content/uno-playing-cards-2d" target="_blank">mehrasaur</a> and <a href="https://www.instagram.com/warlesonoliveira/?utm_source=ig_embed" target="_blank">Warleson Oliveira</a></small>
     </div>
   </b-container>
 </template>

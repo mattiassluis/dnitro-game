@@ -15,7 +15,7 @@
       <Card v-if="player.number_of_cards > 5" covered small style="position: absolute; left: 35px; top: 0; z-index: 5" />
       <b-badge variant="secondary" pill style="position: absolute; top: 31px; right: 0; z-index: 100">{{ player.number_of_cards }} cards</b-badge>
     </b-card-text>
-    <b-card-text class="d-xl-none">
+    <b-card-text :class="[!compactMode ? 'd-xl-none' : '']">
       <b-badge variant="secondary" pill>{{ player.number_of_cards }} cards</b-badge>
     </b-card-text>
     <b-btn size="sm" variant="outline-secondary" v-if="swap" @click="swap(player)">
