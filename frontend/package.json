@@ -19,7 +19,7 @@
     "bootstrap-vue": "^2.9.0",
     "core-js": "^3.6.4",
     "moment": "^2.29.2",
-    "moment-timezone": "^0.5.28",
+    "moment-timezone": "^0.5.35",
     "regenerator-runtime": "^0.13.5",
     "socket.io-client": "^2.3.0",
     "vue": "^2.6.11",
