@@ -21,7 +21,7 @@
     "moment": "^2.29.2",
     "moment-timezone": "^0.5.35",
     "regenerator-runtime": "^0.13.5",
-    "socket.io-client": "^2.3.0",
+    "socket.io-client": "^2.5.0",
     "vue": "^2.6.11",
     "vue-router": "^3.1.6",
     "vue-socket.io-extended": "^4.0.3",
