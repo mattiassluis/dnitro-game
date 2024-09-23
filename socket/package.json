@@ -9,7 +9,7 @@
   "author": "Mattias Sluis",
   "license": "MIT",
   "dependencies": {
-    "express": "^4.17.3",
+    "express": "^4.21.0",
     "socket.io": "^2.5.0",
     "uuid": "^8.1.0",
     "fresh": "^0.5.2",
