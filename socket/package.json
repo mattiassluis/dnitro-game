@@ -9,8 +9,8 @@
   "author": "Mattias Sluis",
   "license": "MIT",
   "dependencies": {
-    "express": "^4.21.0",
-    "socket.io": "^2.5.0",
+    "express": "^4.21.1",
+    "socket.io": "^4.8.0",
     "uuid": "^8.1.0",
     "fresh": "^0.5.2",
     "mime": "^2.4.6",
